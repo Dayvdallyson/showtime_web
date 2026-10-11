@@ -1,6 +1,10 @@
 import { useState, type KeyboardEvent } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
+import {
+  shortestSteps,
+  wrapIndex,
+} from "@/components/carousel-3d/carousel-math"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -15,17 +19,24 @@ export type Carousel3DItem = {
 type Carousel3DProps = {
   items: Carousel3DItem[]
   cardWidth?: number
-  onActiveChange?: (item: Carousel3DItem, index: number) => void
   className?: string
 }
 
+const DEFAULT_CARD_WIDTH = 220
 const CARD_GAP = 28
 const DEFAULT_ACCENT = "#6366f1"
+// Com menos de 3 cartões não há polígono: usa a largura do cartão como raio
+const MIN_CARDS_FOR_RING = 3
+// Opacidade por distância do cartão ativo (0, 1, 2); mais longe fica invisível
+const OPACITY_BY_DISTANCE = [1, 0.85, 0.4]
+const MAX_VISIBLE_DISTANCE = OPACITY_BY_DISTANCE.length - 1
+// Escurecimento dos cartões inativos: base + incremento por passo de distância
+const INACTIVE_DIM_BASE = 0.25
+const INACTIVE_DIM_STEP = 0.15
 
 export function Carousel3D({
   items,
-  cardWidth = 220,
-  onActiveChange,
+  cardWidth = DEFAULT_CARD_WIDTH,
   className,
 }: Carousel3DProps) {
   const [position, setPosition] = useState(0)
@@ -35,7 +46,7 @@ export function Carousel3D({
 
   const anglePerCard = 360 / total
   const radius =
-    total < 3
+    total < MIN_CARDS_FOR_RING
       ? cardWidth
       : Math.round((cardWidth + CARD_GAP) / 2 / Math.tan(Math.PI / total))
   const activeIndex = wrapIndex(position, total)
@@ -44,10 +55,7 @@ export function Carousel3D({
   function rotateBy(steps: number) {
     if (steps === 0) return
 
-    const nextPosition = position + steps
-    const nextIndex = wrapIndex(nextPosition, total)
-    setPosition(nextPosition)
-    onActiveChange?.(items[nextIndex], nextIndex)
+    setPosition(position + steps)
   }
 
   function goTo(index: number) {
@@ -74,7 +82,7 @@ export function Carousel3D({
       onKeyDown={handleKeyDown}
       className={cn(
         "relative isolate flex flex-col items-center gap-8 overflow-hidden py-12 outline-none",
-        "focus-visible:ring-2 focus-visible:ring-ring/50 rounded-3xl",
+        "rounded-3xl focus-visible:ring-2 focus-visible:ring-ring/50",
         className
       )}
     >
@@ -95,7 +103,7 @@ export function Carousel3D({
         style={{ width: cardWidth, aspectRatio: "2 / 3" }}
       >
         <div
-          className="absolute inset-0 transform-3d transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+          className="absolute inset-0 transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] transform-3d motion-reduce:transition-none"
           style={{
             transform: `translateZ(${-radius}px) rotateY(${-position * anglePerCard}deg)`,
           }}
@@ -103,7 +111,7 @@ export function Carousel3D({
           {items.map((item, index) => {
             const distance = Math.abs(shortestSteps(activeIndex, index, total))
             const isActive = distance === 0
-            const isVisible = distance <= 2
+            const isVisible = distance <= MAX_VISIBLE_DISTANCE
 
             return (
               <button
@@ -123,7 +131,7 @@ export function Carousel3D({
                 )}
                 style={{
                   transform: `rotateY(${index * anglePerCard}deg) translateZ(${radius}px)`,
-                  opacity: [1, 0.85, 0.4][distance] ?? 0,
+                  opacity: OPACITY_BY_DISTANCE[distance] ?? 0,
                   boxShadow: isActive
                     ? `0 30px 80px -20px ${item.accent ?? DEFAULT_ACCENT}aa`
                     : "0 20px 40px -20px #000c",
@@ -134,7 +142,11 @@ export function Carousel3D({
                 <span
                   aria-hidden
                   className="absolute inset-0 bg-black transition-opacity duration-700 group-hover:opacity-20"
-                  style={{ opacity: isActive ? 0 : 0.25 + distance * 0.15 }}
+                  style={{
+                    opacity: isActive
+                      ? 0
+                      : INACTIVE_DIM_BASE + distance * INACTIVE_DIM_STEP,
+                  }}
                 />
               </button>
             )
@@ -235,13 +247,4 @@ function Poster({ item }: { item: Carousel3DItem }) {
       </span>
     </>
   )
-}
-
-function wrapIndex(position: number, total: number) {
-  return ((position % total) + total) % total
-}
-
-function shortestSteps(from: number, to: number, total: number) {
-  const forward = wrapIndex(to - from, total)
-  return forward > total / 2 ? forward - total : forward
 }
