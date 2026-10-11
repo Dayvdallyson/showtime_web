@@ -8,7 +8,6 @@ import { MovieForm } from "@/features/movies/components/movie-form"
 import { MovieList } from "@/features/movies/components/movie-list"
 import type { Movie, MovieInput } from "@/features/movies/schemas"
 
-/** Liga os hooks de dados aos componentes de formulário e lista. */
 export function MovieManager({ movies }: { movies: Movie[] }) {
   const [editing, setEditing] = useState<Movie>()
 
@@ -59,7 +58,6 @@ export function MovieManager({ movies }: { movies: Movie[] }) {
         {editing ? `Editando “${editing.title}”` : "Gerenciar filmes"}
       </h2>
 
-      {/* A key remonta o formulário ao trocar de filme, com os valores certos */}
       <MovieForm
         key={editing?.id ?? "new"}
         movie={editing}

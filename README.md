@@ -152,7 +152,7 @@ Os testes ficam ao lado do código que testam (`*.test.ts(x)`).
 
 **Query key factory (`movie-keys.ts`).** Nenhuma key é escrita à mão fora desse arquivo. As keys são hierárquicas (`["movies", "list", filtros]`, `["movies", "detail", id]`), então a invalidação é precisa: criar um filme invalida só `lists()`, e editar invalida `lists()` e o `detail(id)` daquele filme.
 
-**staleTime por query, não global.** Um valor global trata dados diferentes do mesmo jeito. Cada query declara o seu numa constante comentada em `movie-queries.ts`. A lista usa 5 minutos: os filmes só mudam por este app, e toda mutation já invalida a lista na hora.
+**staleTime por query, não global.** Um valor global trata dados diferentes do mesmo jeito. Cada query declara o seu numa constante nomeada em `movie-queries.ts`. A lista usa 5 minutos: os filmes só mudam por este app, e toda mutation já invalida a lista na hora.
 
 **Retry só quando pode dar certo.** `query-client.ts` não repete erro 4xx nem resposta fora do contrato, porque a nova tentativa daria o mesmo resultado. Falha de rede e 5xx repetem até 3 vezes, o padrão do TanStack Query.
 

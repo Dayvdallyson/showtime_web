@@ -4,7 +4,6 @@ import {
 } from "@/components/carousel-3d/carousel-3d"
 import type { Movie } from "@/features/movies/schemas"
 
-/** Adapta o contrato da API para o que o Carousel3D sabe desenhar. */
 function toCarouselItem(movie: Movie): Carousel3DItem {
   return {
     id: movie.id,

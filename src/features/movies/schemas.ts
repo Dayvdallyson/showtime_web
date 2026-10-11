@@ -1,17 +1,13 @@
 import { z } from "zod"
 
-// Limites iguais aos da API (src/movies.ts), para o usuário ver o erro antes de enviar
 export const TITLE_MAX_LENGTH = 200
 export const GENRE_MAX_LENGTH = 50
-// 1888: Roundhay Garden Scene, o filme mais antigo preservado
 export const MIN_YEAR = 1888
 export const MAX_YEAR = 2100
 export const DEFAULT_ACCENT = "#6366f1"
 
 const HEX_COLOR = /^#[0-9a-f]{6}$/i
 const FOUR_DIGITS = /^\d{4}$/
-
-// ---------- Resposta da API (validada na fronteira, em movie-service.ts) ----------
 
 export const movieSchema = z.object({
   id: z.uuid(),
@@ -37,8 +33,6 @@ export const movieListSchema = z.object({
 export type Movie = z.infer<typeof movieSchema>
 export type MovieList = z.infer<typeof movieListSchema>
 
-// ---------- Formulário (criar e editar) ----------
-
 export const movieFormSchema = z.object({
   title: z
     .string()
@@ -50,7 +44,6 @@ export const movieFormSchema = z.object({
     .trim()
     .min(1, "Informe o gênero")
     .max(GENRE_MAX_LENGTH, `Use até ${GENRE_MAX_LENGTH} caracteres`),
-  // O input guarda texto; a saída do schema já é o número que a API espera
   year: z
     .string()
     .trim()
@@ -65,7 +58,5 @@ export const movieFormSchema = z.object({
   accent: z.string().regex(HEX_COLOR, "Use uma cor hex, ex.: #0ea5e9"),
 })
 
-/** Valores dos campos, como o usuário digita */
 export type MovieFormValues = z.input<typeof movieFormSchema>
-/** Corpo enviado para a API no POST (e, parcial, no PATCH) */
 export type MovieInput = z.output<typeof movieFormSchema>

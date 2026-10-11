@@ -23,9 +23,7 @@ import { ApiError } from "@/lib/http-client"
 import { cn } from "@/lib/utils"
 
 type MovieFormProps = {
-  /** Filme em edição; sem ele, o formulário cadastra um novo */
   movie?: Movie
-  /** Recebe os valores validados e, na edição, só os campos alterados */
   onSubmit: (
     values: MovieInput,
     changes: Partial<MovieInput>
@@ -44,23 +42,19 @@ export function MovieForm({ movie, onSubmit, onCancel }: MovieFormProps) {
     resolver: zodResolver(movieFormSchema),
     defaultValues: toFormValues(movie),
   })
-  // Ler no render inscreve o componente nesses estados (proxy do React Hook Form)
   const { isDirty, dirtyFields, isSubmitting } = form.formState
 
   async function submit(values: MovieInput) {
-    // 1. Separar o que mudou, para o PATCH enviar só isso
     const changes = Object.fromEntries(
       Object.entries(values).filter(
         ([field]) => dirtyFields[field as keyof MovieFormValues]
       )
     ) as Partial<MovieInput>
 
-    // 2. Enviar; no cadastro, limpar os campos para o próximo filme
     try {
       await onSubmit(values, changes)
       if (!isEditing) form.reset()
     } catch (error) {
-      // 3. Erros de validação da API aparecem no campo correspondente
       showApiFieldErrors(error)
     }
   }
@@ -112,7 +106,6 @@ export function MovieForm({ movie, onSubmit, onCancel }: MovieFormProps) {
         inputClassName="cursor-pointer p-1"
       />
 
-      {/* mt-5 = altura do label (12px) + gap do Field (8px): alinha com os inputs */}
       <div className="mt-5 flex gap-2">
         <Button
           type="submit"
@@ -138,7 +131,6 @@ type FormInputProps = {
   inputClassName?: string
 } & Pick<ComponentProps<"input">, "type" | "inputMode" | "min" | "max">
 
-/** Campo no padrão de formulários do shadcn: Controller + Field + label + erro. */
 function FormInput({
   control,
   name,

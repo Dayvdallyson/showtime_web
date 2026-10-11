@@ -13,7 +13,6 @@ export function useUpdateMovie() {
   return useMutation({
     mutationFn: ({ id, changes }: UpdateMovieVariables) =>
       movieService.update(id, changes),
-    // Muda o filme editado e as listas onde ele aparece; os outros detalhes ficam
     onSuccess: (movie, _variables, _onMutateResult, context) =>
       Promise.all([
         context.client.invalidateQueries({ queryKey: movieKeys.lists() }),

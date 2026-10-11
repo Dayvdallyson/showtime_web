@@ -6,8 +6,6 @@ import { movieListQuery } from "@/features/movies/api/movie-queries"
 import { MovieCarousel } from "@/features/movies/components/movie-carousel"
 import { MovieManager } from "@/features/movies/components/movie-manager"
 
-// Carrossel e lista mostram o catálogo numa tela só, sem paginação na interface:
-// pede o máximo que a API aceita por página
 const MOVIES_PAGE_SIZE = 100
 
 export function MoviesPage() {

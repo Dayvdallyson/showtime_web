@@ -6,7 +6,6 @@ import {
 } from "@/features/movies/schemas"
 import { request } from "@/lib/http-client"
 
-// Chamadas HTTP da feature. Toda resposta passa pelo schema antes de entrar no app.
 export const movieService = {
   async list(filters: MovieListFilters, signal?: AbortSignal) {
     const params = new URLSearchParams()

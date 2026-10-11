@@ -25,12 +25,9 @@ type Carousel3DProps = {
 const DEFAULT_CARD_WIDTH = 220
 const CARD_GAP = 28
 const DEFAULT_ACCENT = "#6366f1"
-// Com menos de 3 cartões não há polígono: usa a largura do cartão como raio
 const MIN_CARDS_FOR_RING = 3
-// Opacidade por distância do cartão ativo (0, 1, 2); mais longe fica invisível
 const OPACITY_BY_DISTANCE = [1, 0.85, 0.4]
 const MAX_VISIBLE_DISTANCE = OPACITY_BY_DISTANCE.length - 1
-// Escurecimento dos cartões inativos: base + incremento por passo de distância
 const INACTIVE_DIM_BASE = 0.25
 const INACTIVE_DIM_STEP = 0.15
 

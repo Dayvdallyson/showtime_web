@@ -14,7 +14,6 @@ import {
 import { renderWithProviders } from "@/test/render"
 import { server } from "@/test/server"
 
-/** Renderiza a página com a API fake e espera a lista carregar. */
 async function renderPage(initial: Movie[] = []) {
   const db = createMovieDb(initial)
   server.use(...db.handlers)
@@ -96,7 +95,6 @@ describe("cadastro de filme", () => {
     expect(
       screen.getByText("Não foi possível adicionar o filme")
     ).toBeInTheDocument()
-    // Os valores ficam para o usuário corrigir
     expect(screen.getByLabelText("Título")).toHaveValue("Duna")
   })
 })

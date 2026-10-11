@@ -4,7 +4,6 @@ import { afterAll, afterEach, beforeAll } from "vitest"
 
 import { server } from "@/test/server"
 
-// Qualquer requisição sem handler falha o teste: nada escapa para a rede real
 beforeAll(() => server.listen({ onUnhandledFrame: "error" }))
 
 afterEach(() => {

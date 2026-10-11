@@ -4,12 +4,10 @@ import { env } from "@/config/env"
 import type { Movie } from "@/features/movies/schemas"
 
 const MOVIES_URL = `${env.VITE_API_URL}/movies`
-// Mesmo padrão da API
 const DEFAULT_PAGE_SIZE = 20
 
 let sequence = 0
 
-/** Filme válido no contrato da API; os testes sobrescrevem só o que importa. */
 export function buildMovie(overrides: Partial<Movie> = {}): Movie {
   sequence += 1
   const now = new Date().toISOString()
@@ -27,10 +25,6 @@ export function buildMovie(overrides: Partial<Movie> = {}): Movie {
   }
 }
 
-/**
- * API fake em memória, no nível da rede, com o mesmo contrato da API real.
- * Cada teste cria a sua, então não há estado compartilhado entre testes.
- */
 export function createMovieDb(initial: Movie[] = []) {
   const movies = new Map(initial.map((movie) => [movie.id, movie]))
 
@@ -82,7 +76,6 @@ export function createMovieDb(initial: Movie[] = []) {
   return { movies, handlers }
 }
 
-/** Resposta de erro no envelope da API: { error: { code, message, details? } } */
 export function apiError(
   status: number,
   code: string,

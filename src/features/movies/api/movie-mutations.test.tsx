@@ -19,7 +19,6 @@ import { server } from "@/test/server"
 
 const LIST_KEY = movieKeys.list({})
 
-/** QueryClient com a lista já em cache, como depois de abrir a página. */
 async function clientWithCachedList() {
   const queryClient = createTestQueryClient()
   await queryClient.prefetchQuery(movieListQuery({}))
@@ -91,7 +90,6 @@ describe("useDeleteMovie", () => {
     server.use(...createMovieDb([kept, deleted]).handlers)
     const queryClient = await clientWithCachedList()
 
-    // Segura a resposta do DELETE para observar o estado otimista
     let releaseResponse!: () => void
     const responseReleased = new Promise<void>((resolve) => {
       releaseResponse = resolve

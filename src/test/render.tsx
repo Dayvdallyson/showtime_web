@@ -4,7 +4,6 @@ import { render, renderHook } from "@testing-library/react"
 
 import { Toaster } from "@/components/ui/toast"
 
-/** QueryClient novo por teste, sem retry, como recomenda a doc do TanStack Query. */
 export function createTestQueryClient() {
   return new QueryClient({
     defaultOptions: {

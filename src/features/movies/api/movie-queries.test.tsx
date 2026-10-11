@@ -52,7 +52,6 @@ describe("movieListQuery", () => {
   })
 
   test("falha quando a resposta está fora do contrato", async () => {
-    // Formato antigo da API (array solto): precisa ser rejeitado na fronteira
     server.use(http.get(MOVIES_URL, () => HttpResponse.json([buildMovie()])))
 
     const { result } = renderHookWithProviders(() =>

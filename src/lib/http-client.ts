@@ -10,10 +10,8 @@ type RequestOptions = {
   signal?: AbortSignal
 }
 
-/** Erros por campo, no formato que a API devolve: { campo: ["mensagem", ...] } */
 export type FieldErrors = Record<string, string[] | undefined>
 
-// Envelope de erro da API: { error: { code, message, details? } }
 const errorBodySchema = z.object({
   error: z.object({
     code: z.string(),
@@ -22,18 +20,13 @@ const errorBodySchema = z.object({
   }),
 })
 
-// Em erro de validação, details traz as mensagens por campo
 const fieldErrorsSchema = z.record(z.string(), z.array(z.string()).optional())
 
-// Code usado quando a resposta de erro não segue o envelope (ex.: proxy na frente da API)
 const UNKNOWN_ERROR_CODE = "UNKNOWN_ERROR"
 
-/** Resposta HTTP com status de erro (4xx ou 5xx). */
 export class ApiError extends Error {
   readonly status: number
-  /** Code estável da API, ex.: VALIDATION_ERROR, NOT_FOUND */
   readonly code: string
-  /** Erros por campo, só em erros de validação */
   readonly details: FieldErrors | undefined
 
   constructor(
@@ -50,17 +43,12 @@ export class ApiError extends Error {
   }
 }
 
-/**
- * Faz uma requisição JSON para a API e devolve o corpo ainda sem tipo.
- * Quem chama valida o formato com o schema da feature.
- */
 export async function request(
   path: string,
   options: RequestOptions = {}
 ): Promise<unknown> {
   const { method = "GET", body, signal } = options
 
-  // 1. Enviar
   let response: Response
   try {
     response = await fetch(`${env.VITE_API_URL}${path}`, {
@@ -71,17 +59,14 @@ export async function request(
       body: body === undefined ? undefined : JSON.stringify(body),
     })
   } catch (error) {
-    // Cancelamento (ex.: query desmontada) segue como está; o resto é falha de rede
     if (signal?.aborted) throw error
     throw new Error("Não foi possível conectar à API", { cause: error })
   }
 
-  // 2. Erro HTTP vira ApiError com o que a API explicou
   if (!response.ok) {
     throw await toApiError(response)
   }
 
-  // 3. Sucesso: 204 não tem corpo
   if (response.status === 204) return undefined
   return response.json()
 }
