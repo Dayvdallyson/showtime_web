@@ -16,7 +16,7 @@ Front do Showtime: um carrossel 3D de filmes e um painel para cadastrar, editar 
 ## Pré-requisitos
 
 - Node.js 24 ou mais recente
-- pnpm 11 (o front) e npm (a API)
+- pnpm 11 (o front e a API usam pnpm)
 - Docker, para o Postgres da API
 
 ## Como rodar
@@ -28,11 +28,11 @@ Use dois terminais: um para a API e outro para o front.
 ```bash
 cd ~/Documentos/showtime/api
 [ -f .env ] || cp .env.example .env
-npm install
-npm run db:up
-npm run db:migrate
-npm run db:seed
-npm run dev
+pnpm install
+pnpm db:up
+pnpm db:migrate
+pnpm db:seed
+pnpm dev
 ```
 
 - `db:up` sobe o Postgres no Docker e espera ele ficar saudável.
@@ -45,7 +45,9 @@ Para conferir se a API está no ar:
 curl http://localhost:3333/health
 ```
 
-A resposta deve ser `{"ok":true}`.
+A resposta deve ser `{"status":"ok","database":"up"}`.
+
+A documentação da API (OpenAPI) fica em http://localhost:3333/docs.
 
 ### 2. Front (terminal 2)
 
@@ -62,7 +64,7 @@ Depois, abra http://localhost:5173.
 Basta subir o banco, a API e o front:
 
 ```bash
-cd ~/Documentos/showtime/api && npm run db:up && npm run dev
+cd ~/Documentos/showtime/api && pnpm db:up && pnpm dev
 ```
 
 ```bash
@@ -79,7 +81,7 @@ VITE_API_URL=http://localhost:3333
 
 As variáveis são validadas com Zod em `src/config/env.ts` quando o app abre. Uma URL inválida derruba a inicialização com uma mensagem clara, em vez de falhar na primeira requisição. Valor vazio conta como ausente.
 
-A API só aceita requisições da origem em `WEB_ORIGIN` (`http://localhost:5173` por padrão, no `.env` da API). Se o front rodar em outra porta, ajuste esse valor.
+A API só aceita requisições das origens em `WEB_ORIGIN`, no `.env` da API. A lista é separada por vírgula, e o `.env.example` já traz `http://localhost:5173` e `https://dayvdallyson.github.io`. Se o front rodar em outra porta ou domínio, acrescente a origem nessa lista.
 
 ## Scripts
 
@@ -177,7 +179,8 @@ pnpm dlx shadcn@latest add <nome>
 ## Problemas comuns
 
 - **"Não foi possível carregar os filmes"**: a API não está rodando. Confira com `curl http://localhost:3333/health`.
-- **Erro de CORS no console**: o front não está em `http://localhost:5173`. Ajuste `WEB_ORIGIN` no `.env` da API.
+- **Erro de CORS no console**: o front não está em `http://localhost:5173`. Acrescente a origem dele em `WEB_ORIGIN` no `.env` da API.
+- **"Muitas requisições, tente de novo em instantes"**: a API limita as requisições por IP (`RATE_LIMIT_MAX` a cada `RATE_LIMIT_WINDOW_MS`, no `.env` da API; o padrão é 100 a cada 15 minutos). Em desenvolvimento, aumente `RATE_LIMIT_MAX`.
 - **Porta 5432 ocupada**: outro Postgres está rodando na máquina. Pare esse Postgres ou mude a porta no `docker-compose.yml` e no `DATABASE_URL` da API.
-- **Não force correções do audit** (`npm audit fix --force` ou equivalente): o CLI do shadcn volta para a 1.0.
+- **Não force correções do audit** (`pnpm audit --fix`, `npm audit fix --force` ou equivalente): o CLI do shadcn volta para a 1.0.
 - **O `node_modules` aponta para `~/node_modules/.pnpm`**: o `pnpm-workspace.yaml` deste projeto sumiu. Ele existe para que o pnpm trate o `web` como a raiz e não use o `~/pnpm-workspace.yaml` da sua home.
